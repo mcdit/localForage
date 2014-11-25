@@ -11,12 +11,15 @@
 
     var DriverType = {
         INDEXEDDB: 'asyncStorage',
+        CHUNKEDSQL: 'chunkedSQLStorage',
         LOCALSTORAGE: 'localStorageWrapper',
         WEBSQL: 'webSQLStorage'
+        
     };
 
     var DefaultDriverOrder = [
         DriverType.INDEXEDDB,
+        DriverType.CHUNKEDSQL,
         DriverType.WEBSQL,
         DriverType.LOCALSTORAGE
     ];
@@ -76,6 +79,7 @@
         var result = {};
 
         result[DriverType.WEBSQL] = !!self.openDatabase;
+        result[DriverType.CHUNKEDSQL] = !!self.openDatabase;
         result[DriverType.INDEXEDDB] = !!(function() {
             // We mimic PouchDB here; just UA test for Safari (which, as of
             // iOS 8/Yosemite, doesn't properly support IndexedDB).
@@ -183,6 +187,7 @@
 
     LocalForage.prototype.INDEXEDDB = DriverType.INDEXEDDB;
     LocalForage.prototype.LOCALSTORAGE = DriverType.LOCALSTORAGE;
+    LocalForage.prototype.CHUNKEDSQL = DriverType.CHUNKEDSQL;
     LocalForage.prototype.WEBSQL = DriverType.WEBSQL;
 
     // Set any config values for localForage; can be called anytime before
@@ -345,6 +350,9 @@
                             break;
                         case self.LOCALSTORAGE:
                             driver = require('./drivers/localstorage');
+                            break;
+                        case self.CHUNKEDSQL:
+                            driver = require('./drivers/chunkedsql');
                             break;
                         case self.WEBSQL:
                             driver = require('./drivers/websql');
